@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Struts2Diagram version="2.0">
+  <package name="process" location="37,37" size="170,70">
+    <action name="ShowRequests" location="5,22" size="150,40">
+      <result name="success">
+        <resourceEdge source="success" routing="0" target="StartPage.jsp" />
+      </result>
+    </action>
+  </package>
+  <webResource name="StartPage.jsp" path="/StartPage.jsp" location="262,43" size="150,55" />
+</Struts2Diagram>
+

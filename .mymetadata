@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="taxiSharing"
+  id="myeclipse.1393219248889"
+  context-root="/taxiSharing"
+  j2ee-spec="6.0"
+  archive="taxiSharing.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+
