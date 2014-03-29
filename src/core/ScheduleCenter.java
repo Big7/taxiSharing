@@ -160,7 +160,7 @@ public class ScheduleCenter {
 			System.out.println(rt.get(i));
 		}
 		for(Taxi taxis:rt){
-			
+			System.out.println("ньньнь");
 			System.out.println(taxis.toString());
 		}
 		//sc.schedule();
