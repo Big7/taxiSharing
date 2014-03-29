@@ -14,54 +14,105 @@ import java.util.StringTokenizer;
 public class ScheduleCenter {
 	
 	public static final ScheduleCenter Center = new ScheduleCenter();
+	String queryFile="/Users/DXY/programming/Myeclipse_workspace/taxiSharing/query.txt";
+	String taxiFile="/Users/DXY/programming/Myeclipse_workspace/taxiSharing/taxi.txt";
 	
 	List<Rider> Requests = new ArrayList<Rider>();
+	static List<Taxi> RunTaxi = new ArrayList<Taxi>();//所有taxi
 	List<Taxi> AvailableTaxi= new ArrayList<Taxi>();//有空的taxi
-	List<Taxi> FullTaxi = new ArrayList<Taxi>();//没空的taxi
 	
+	//初始化Requests，RunTaxi
 	public ScheduleCenter(){
-		File file = new File("query.txt");
-
-		BufferedReader reader = null;
+		readFile(1);//rider query file
+		readFile(2);//taxi location file
 		
-		try {
-			reader = new BufferedReader(new FileReader(file));
-
-			String content = null;
+	}
+	
+	private void readFile(int category) {
+		// TODO Auto-generated method stub
+		if(category ==1){
+			File file = new File(queryFile);
+	
+			BufferedReader reader = null;
 			
-			String[] texts=new String[5];
-			int i=0;
-			while ((content = reader.readLine()) != null) {
-				StringTokenizer token = new StringTokenizer(content, ",");
-
-				while (token.hasMoreElements()) {
-					texts[i]=token.nextToken();
-					System.out.println(i+"  "+texts[i]);
-					i++;
+			try {
+				reader = new BufferedReader(new FileReader(file));
+	
+				String content = null;
+				
+				String[] texts=new String[5];
+				int i=0;
+				while ((content = reader.readLine()) != null) {
+					StringTokenizer token = new StringTokenizer(content, ",");
+	
+					while (token.hasMoreElements()) {
+						texts[i]=token.nextToken();
+						//System.out.println(i+"  "+texts[i]);
+						i++;
+					}
+					Requests.add(new Rider(texts));
+					i=0;
 				}
-				Requests.add(new Rider(texts));
-				i=0;
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (Exception e) {
-					e.printStackTrace();
+		}
+		else {
+			File file = new File(taxiFile);
+			
+			BufferedReader reader = null;
+			
+			try {
+				reader = new BufferedReader(new FileReader(file));
+	
+				String content = null;
+				
+				String[] texts=new String[9];
+				int i=0;
+				while ((content = reader.readLine()) != null) {
+					StringTokenizer token = new StringTokenizer(content, ",");
+	
+					while (token.hasMoreElements()) {
+						texts[i]=token.nextToken();
+						//System.out.println(i+"  "+texts[i]);
+						i++;
+					}
+					RunTaxi.add(new Taxi(texts));
+					i=0;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
 
-		
 	}
-	
+
 	public void schedule(){
 		for(Rider rider:Requests){
+			System.out.println("Rider: "+rider.toString());
 			//寻找最近的出租车
-			List<Taxi> candidates=findNearestTaxis(rider);
-			
+			List<Taxi> Candidates=findNearestTaxis(rider);
+			System.out.println("Candidate taxis:");
+			for(Taxi t:Candidates){
+				System.out.println(t.toString());
+			}
+			System.out.println();
 		}
 	}
 	
@@ -69,10 +120,11 @@ public class ScheduleCenter {
 		// TODO Auto-generated method stub
 		List<Taxi> candidates=new ArrayList<Taxi>();
 		for(Taxi taxi:AvailableTaxi){
-			if(rider.range90(taxi)){
-				
+			if(rider.range180(taxi)){
+				candidates.add(taxi);
 			}
 		}
+		return candidates;
 	}
 
 	public void addRequest(Rider rider){
@@ -90,11 +142,28 @@ public class ScheduleCenter {
 
 	
 	
+	public List<Taxi> getRunTaxi() {
+		return RunTaxi;
+	}
+
+	public void setRunTaxi(List<Taxi> runTaxi) {
+		RunTaxi = runTaxi;
+	}
+
 	public static void main(String[] args) {
 		ScheduleCenter sc = new ScheduleCenter();
-		for(Rider rider:sc.getRequests()){
-			rider.toString();
+//		for(Rider rider:sc.getRequests()){
+//			rider.toString();
+//		}
+		List<Taxi> rt=sc.getRunTaxi();
+		for(int i=0;i<rt.size();i++){
+			System.out.println(rt.get(i));
 		}
+		for(Taxi taxis:rt){
+			
+			System.out.println(taxis.toString());
+		}
+		//sc.schedule();
 	}
 }
 

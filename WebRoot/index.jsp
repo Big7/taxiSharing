@@ -25,7 +25,51 @@
 	    mapObj = new AMap.Map("iCenter",{  
 	    center:new AMap.LngLat(116.397428,39.90923), //地图中心点  
 	    level:13  //地图显示的缩放级别  
-	    });   
+	    }); 
+	    runningTaxi();  
+	}
+	
+	function runningTaxi(){
+	$("#Button1").click(function(){
+              //var mName=encodeURI($("#mname").val());
+              //var mPass=encodeURI($("#mpass").val());
+              $.ajax(
+              {
+                  url:"ShowRequests.action",
+                  dataType:"html",
+                  //data:{mname:mName,mpass:mPass},
+                  success:function(value)
+                  {
+                     var taxis=jQuery.parseJSON(value);
+                     var arr = new Array();//经纬度坐标数组
+                     for(var t in taxis)
+                     {
+						var marker = new AMap.Marker({ //自定义构造AMap.Marker对象                  
+  						map:mapObj,                  
+  						position: new AMap.LngLat(t.latitude,t.longitude),                  
+  						offset: new AMap.Pixel(-10,-34),                  
+  						icon: "http://webapi.amap.com/images/0.png"                  
+						}); 
+						marker=null;                               
+                     }
+                     /* for(var i=0;i<taxis.res.length;i++)
+                     {                 
+						arr.push(new AMap.LngLat(taxis.res[i].x, taxis.res[i].y));                               
+                     }
+                     var polyline = new AMap.Polyline({                    
+  							map:mapObj,                  
+  							path:arr,                    
+  							strokeColor:"#F00",                    
+  							strokeOpacity:0.4,                    
+  							strokeWeight:3,                    
+  							strokeStyle:"dashed",                    
+  							strokeDasharray:[10,5]                    
+						}); */
+                     alert(taxis.size); 
+                     //polyline=null;                              
+                  }
+              })
+           })
 	}  
 </script>
 </head>
@@ -69,12 +113,12 @@
 		            <a href="#" class="list-group-item active">
 		              Query
 		            </a>
-		            <a href="http://localhost:8080/TaxiSharing/ShowRequests.action" 
+		            <a href="http://localhost:8080/taxiSharing/ShowRequests.action"
 		            class="list-group-item">
-			        <input type="button" value="Start Application" onclick="startAnimation()"/>
+			        Start Application
 		            </a>
 		            <a href="#" class="list-group-item">
-		            <input type="button" value="stop" onclick="stopAnimation()"/>
+		            <input id="Button1" type="button" class="btn" value="running taxis"/> 
 		            </a>
 		        </div>
 		        <div style="padding-bottom: 20px;">

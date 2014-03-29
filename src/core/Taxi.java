@@ -3,7 +3,9 @@ package core;
 import java.text.ParseException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat; 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class Taxi {
@@ -16,7 +18,7 @@ public class Taxi {
 	int GPSpeed;
 	int GPSangle;
 	int GPState;
-	
+	List<Rider> Passengers = new ArrayList<Rider>();
 	
 	public String getTaxiID() {
 		return TaxiID;
@@ -179,6 +181,7 @@ public class Taxi {
 	    GPSpeed = Integer.parseInt(texts[6]);
 	    GPSangle = Integer.parseInt(texts[7]);
 	    GPState = Integer.parseInt(texts[8]);
+	    
 	}
 
 

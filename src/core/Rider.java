@@ -10,23 +10,30 @@ public class Rider {
 	int State;//人数
 	Date MomentTime;
 	
+	double OriginLat;//纬度y
 	double OriginLng;
-	double OriginLat;//纬度x
 	String Origin;
 	
 	double DestinationLng;
 	double DestinationLat;
 	String Destination;
+	Taxi Driver;
 	
 	public Rider(String[] texts) throws ParseException {
 		
 		DateFormat df = new SimpleDateFormat("HH:mm:ss");
 		MomentTime = df.parse(texts[0]);
-		OriginLng =Double.parseDouble(texts[1]);
-		OriginLat =Double.parseDouble(texts[2]);
-		DestinationLng =Double.parseDouble(texts[3]);
-		DestinationLat =Double.parseDouble(texts[4]);
+		OriginLat =Double.parseDouble(texts[1]);//x
+		OriginLng =Double.parseDouble(texts[2]);
+		DestinationLat =Double.parseDouble(texts[3]);
+		DestinationLng =Double.parseDouble(texts[4]);
+		
 		State=1;//默认为1
+		
+	}
+
+	public Rider() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public String getRiderID(){
@@ -71,6 +78,8 @@ public class Rider {
 		DestinationLat = destinationLat;
 	}
 
+
+
 	public String getOrigin() {
 		return Origin;
 	}
@@ -87,26 +96,50 @@ public class Rider {
 		Destination = destination;
 	}
 
-	public boolean range90(Taxi taxi) {
-		double y = DestinationLat-OriginLat;
-		double x = DestinationLng-OriginLng;
+	public double getOriginLat() {
+		return OriginLat;
+	}
+
+	public void setOriginLat(double originLat) {
+		OriginLat = originLat;
+	}
+
+	public double getOriginLng() {
+		return OriginLng;
+	}
+
+	public void setOriginLng(double originLng) {
+		OriginLng = originLng;
+	}
+
+	//判断是否出租车与乘客方向一致（180度范围之内）
+	public boolean range180(Taxi taxi) {
+		double y = DestinationLng-OriginLng;
+		double x = DestinationLat-OriginLat;
 		double k1 = Math.atan2(y,x);
+		//System.out.println(k1);
 		y = taxi.longitude-OriginLng;
-		x = taxi.latitude-OriginLng;
+		x = taxi.latitude-OriginLat;
 		double k2 = Math.atan2(y, x);
+		//System.out.println(k2);
 		double range=(k1-k2);
-		if(range<Math.PI/2){
+		if(-Math.PI/2<range && range<Math.PI/2){
 			System.out.print(range);
 			return true;
 		}
 		else return false;
 	}
+	
+	public String toString(){
+		return "("+this.getOriginLat()+","+this.getOriginLng()+")"
+	+"("+this.getDestinationLat()+","+this.getDestinationLng()+")";
+	}
 	public static void main(String[] args) throws ParseException {
-		String[] texts1={"04:00:08","0","0","1","1"};
+		String[] texts1={"04:00:08","0","0","0","1"};
 		Rider rider=new Rider(texts1);
-		String[] texts2={"431156","4","2","20121130001937","1","0","10","184","1"};
+		String[] texts2={"431156","4","2","20121130001937","1","1","10","184","1"};
 		Taxi taxi=new Taxi(texts2);
-		rider.range90(taxi);
+		rider.range180(taxi);
 	}
 	
 }
