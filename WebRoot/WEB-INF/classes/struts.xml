@@ -4,8 +4,8 @@
 
 	<package name="process" extends="struts-default" >
 		<action name="ShowRequests" class="process.ShowRequests">
-			<!-- <result name="success" type="dispatcher">
+			<result name="success" type="dispatcher">
 				/StartPage.jsp
-			</result> -->
+			</result>
 		</action>
 	</package></struts>    

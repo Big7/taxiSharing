@@ -14,18 +14,19 @@ import java.util.StringTokenizer;
 public class ScheduleCenter {
 	
 	public static final ScheduleCenter Center = new ScheduleCenter();
-	String queryFile="/Users/DXY/programming/Myeclipse_workspace/taxiSharing/query.txt";
-	String taxiFile="/Users/DXY/programming/Myeclipse_workspace/taxiSharing/taxi.txt";
+	String queryFile="C:\\Users\\Dolly\\git\\taxiSharing\\query.txt";
+	///Users/DXY/programming/Myeclipse_workspace/taxiSharing/query.txt
+	String taxiFile="C:\\Users\\Dolly\\git\\taxiSharing\\taxi.txt";
+	///Users/DXY/programming/Myeclipse_workspace/taxiSharing/taxi.txt
 	
 	List<Rider> Requests = new ArrayList<Rider>();
-	static List<Taxi> RunTaxi = new ArrayList<Taxi>();//ËùÓÐtaxi
-	List<Taxi> AvailableTaxi= new ArrayList<Taxi>();//ÓÐ¿ÕµÄtaxi
+	List<Taxi> RunTaxi = new ArrayList<Taxi>();//ï¿½ï¿½ï¿½ï¿½taxi
+	List<Taxi> AvailableTaxi= new ArrayList<Taxi>();//ï¿½Ð¿Õµï¿½taxi
 	
-	//³õÊ¼»¯Requests£¬RunTaxi
+	//ï¿½ï¿½Ê¼ï¿½ï¿½Requestsï¿½ï¿½RunTaxi
 	public ScheduleCenter(){
 		readFile(1);//rider query file
 		readFile(2);//taxi location file
-		
 	}
 	
 	private void readFile(int category) {
@@ -106,7 +107,7 @@ public class ScheduleCenter {
 	public void schedule(){
 		for(Rider rider:Requests){
 			System.out.println("Rider: "+rider.toString());
-			//Ñ°ÕÒ×î½üµÄ³ö×â³µ
+			//Ñ°ï¿½ï¿½ï¿½ï¿½ï¿½Ä³ï¿½ï¿½â³µ
 			List<Taxi> Candidates=findNearestTaxis(rider);
 			System.out.println("Candidate taxis:");
 			for(Taxi t:Candidates){

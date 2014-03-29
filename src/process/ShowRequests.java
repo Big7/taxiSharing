@@ -31,13 +31,7 @@ public class ShowRequests extends ActionSupport {
 		// TODO Auto-generated method stub
 		requests = ScheduleCenter.Center.getRequests();
 		taxis = ScheduleCenter.Center.getRunTaxi();
-		JSONObject jsonObject = JSONObject.fromObject(taxis);
-    	try {
-			ServletActionContext.getResponse().getWriter().print(jsonObject.toString());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 //		for(Rider rider:requests){
 //			System.out.println("Rider: "+rider.toString());
 //		}

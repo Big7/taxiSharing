@@ -11,6 +11,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!-- <meta http-equiv='refresh' content='0;url=/taxiSharing/ShowRequests.action'> -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <title>Taxi Sharing</title>
 <link href="css/gaode.demo.Default.css" rel="stylesheet" 	/>
