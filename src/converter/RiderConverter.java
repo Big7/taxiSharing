@@ -7,6 +7,7 @@ import core.Rider;
 import ognl.DefaultTypeConverter;
 
 public class RiderConverter extends DefaultTypeConverter{
+	@Override
 	public Object convertValue(Map context, Object value, Class toType){
 		if(toType==Rider.class){
 			String[] params = (String[])value;

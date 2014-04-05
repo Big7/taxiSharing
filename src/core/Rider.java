@@ -7,11 +7,12 @@ import java.util.Date;
 
 public class Rider {
 	String RiderID;
-	int State;//ÈËÊý
+	int State;//ï¿½ï¿½ï¿½ï¿½
 	Date MomentTime;
 	
-	double OriginLat;//Î³¶Èy
-	double OriginLng;
+	double OriginLng;//x
+	double OriginLat;//yçº¬åº¦39
+	
 	String Origin;
 	
 	double DestinationLng;
@@ -23,12 +24,12 @@ public class Rider {
 		
 		DateFormat df = new SimpleDateFormat("HH:mm:ss");
 		MomentTime = df.parse(texts[0]);
-		OriginLat =Double.parseDouble(texts[1]);//x
+		OriginLat =Double.parseDouble(texts[1]);//y
 		OriginLng =Double.parseDouble(texts[2]);
 		DestinationLat =Double.parseDouble(texts[3]);
 		DestinationLng =Double.parseDouble(texts[4]);
 		
-		State=1;//Ä¬ÈÏÎª1
+		State=1;//Ä¬ï¿½ï¿½Îª1
 		
 	}
 
@@ -112,7 +113,7 @@ public class Rider {
 		OriginLng = originLng;
 	}
 
-	//ÅÐ¶ÏÊÇ·ñ³ö×â³µÓë³Ë¿Í·½ÏòÒ»ÖÂ£¨180¶È·¶Î§Ö®ÄÚ£©
+	//ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½â³µï¿½ï¿½Ë¿Í·ï¿½ï¿½ï¿½Ò»ï¿½Â£ï¿½180ï¿½È·ï¿½Î§Ö®ï¿½Ú£ï¿½
 	public boolean range180(Taxi taxi) {
 		double y = DestinationLng-OriginLng;
 		double x = DestinationLat-OriginLat;
@@ -130,6 +131,7 @@ public class Rider {
 		else return false;
 	}
 	
+	@Override
 	public String toString(){
 		return "("+this.getOriginLat()+","+this.getOriginLng()+")"
 	+"("+this.getDestinationLat()+","+this.getDestinationLng()+")";

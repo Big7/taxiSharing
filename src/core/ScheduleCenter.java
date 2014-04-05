@@ -3,8 +3,6 @@ package core;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -161,7 +159,7 @@ public class ScheduleCenter {
 			System.out.println(rt.get(i));
 		}
 		for(Taxi taxis:rt){
-			System.out.println("ньньнь");
+			System.out.println("О©╫О©╫О©╫О©╫О©╫О©╫");
 			System.out.println(taxis.toString());
 		}
 		//sc.schedule();
