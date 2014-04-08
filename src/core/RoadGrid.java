@@ -2,12 +2,16 @@ package core;
 
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import org.codehaus.jettison.json.JSONException;
@@ -156,7 +160,7 @@ public class RoadGrid {
 		
 	}
 	
-	//调API获得起点终点格子中心的taxi时间
+	//调API获得任意两点时间
 	public double getTime1(Coordinate start, Coordinate end) throws Exception, IOException{
 		Coordinate GridStart=getCenter(getGrid(start));
 		Coordinate GridEnd=getCenter(getGrid(end));
@@ -173,7 +177,33 @@ public class RoadGrid {
 		return Double.parseDouble(json.get("duration").toString());
 	}
 	
-	//geotools解析路网计算最短路径
+	//调API获得起点终点在格子中心的距离和时间
+		public String getShortestDistanceTime1(Coordinate start, Coordinate end) throws Exception, IOException{
+			
+//			String url = "http://maps.googleapis.com/maps/api/directions/json?origin="+GridStart.x+","+GridStart.y
+//					+"&destination="+GridEnd.x+","+GridEnd.y+"&sensor=false";
+			try {
+				JSONObject baiduJSON = readJsonFromUrl("http://api.map.baidu.com/direction/v1?mode=driving&origin="+start.y+","+start.x+"&destination="+end.y+","+end.x
+						+"&origin_region=北京&destination_region=北京&output=json&ak=FF5d28ddc84d30ea86d9207d9839d1ea"); 
+	//		    System.out.println(json.toString());  
+			    JSONObject json = baiduJSON.getJSONObject("result").getJSONObject("taxi");
+	//		    System.out.println("time"+json2.get("duration"));
+	//		    System.out.println("distance"+json2.get("distance"));
+			    this.setAvgSpeed(Double.parseDouble(json.get("distance").toString())/Double.parseDouble(json.get("duration").toString()));
+				return json.get("distance").toString()+"\t"+json.get("duration").toString();
+		
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				JSONObject baiduJSON = readJsonFromUrl("http://api.map.baidu.com/direction/v1?mode=driving&origin="+start.y+","+start.x+"&destination="+end.y+","+end.x
+						+"&origin_region=北京&destination_region=北京&output=json&ak=FF5d28ddc84d30ea86d9207d9839d1ea"); 
+				System.out.println(baiduJSON.toString());
+				return "null";
+			}
+			
+		}
+		
+	//geotools解析路网计算任意两点时间
 	public double getTime2(Coordinate start, Coordinate end){
 		Path route =this.getRoadNetwork().getShortestPath(start, end);;
 		//System.out.println(route.toString());
@@ -190,6 +220,33 @@ public class RoadGrid {
 		return shortestDis*100000/this.getAvgSpeed(); 
 	}
 	
+	//geotools计算起点终点在格子中心最短路径和时间
+		public String getShortestDistanceTime2(Coordinate start, Coordinate end){
+			Path route =this.getRoadNetwork().getShortestPath(start, end);;
+			//System.out.println(route.toString());
+			if(route!=null){
+				List<Edge> edges = route.getEdges();
+				double shortestDis=0;
+				for(Edge e:edges){
+					Node a=e.getNodeA();
+		            Node b=e.getNodeB();
+		            Coordinate a1= (Coordinate)a.getObject();
+		            Coordinate b1= (Coordinate)b.getObject();
+		            shortestDis += a1.distance(b1);
+				}
+				shortestDis = shortestDis*100000;
+				
+				return doubleDigits(shortestDis)+"\t"+doubleDigits(shortestDis/this.getAvgSpeed()); 
+			}else{
+				return "null";
+			}
+		}
+		
+		public String doubleDigits(double d) {
+	        DecimalFormat df = new DecimalFormat("#.00");
+	        return df.format( d );
+	    }
+		
 	private  String readAll(Reader rd) throws IOException {  
 	    StringBuilder sb = new StringBuilder();  
 	    int cp;  
@@ -211,6 +268,8 @@ public class RoadGrid {
 	    }  
 	  }  
 	
+	
+	
 	/**
 	 * @param args
 	 * @throws Exception 
@@ -219,26 +278,42 @@ public class RoadGrid {
 		// TODO Auto-generated method stub
 		RoadGrid rg = new RoadGrid();
 		System.out.println(rg.getWidth()+"  "+rg.getLength()+"   "+rg.getxGrids()+" "+rg.getyGrids());
+		int l = rg.getxGrids();
+		int w = rg.getyGrids();
 		
-		Coordinate start= new Coordinate(116.249664,39.965543);
-		Coordinate end= new Coordinate(116.472824,39.809591);
-//		Coordinate start= new Coordinate(116.397452,39.90888);
-//		Coordinate end= new Coordinate(116.406313,39.924285);
-		System.out.println(start.toString()+"  "+end.toString());
-		double timeAPI,timeRN;
-		timeAPI = rg.getTime1(start, end);
-		timeRN = rg.getTime2(start, end);
+//		Coordinate start= new Coordinate(116.249664,39.965543);
+//		Coordinate end= new Coordinate(116.472824,39.809591);
+//
+//		System.out.println(start.toString()+"  "+end.toString());
+//		double timeAPI,timeRN;
+//		timeAPI = rg.getTime1(start, end);
+//		timeRN = rg.getTime2(start, end);
+//		
+//		System.out.println("timeAPI:"+timeAPI+"   timeRN:"+timeRN);
 		
-		System.out.println("timeAPI:"+timeAPI+"   timeRN:"+timeRN);
+		FileWriter fw1 = new FileWriter(new File("C:\\Users\\dxy\\Output\\gridDistance"));
+		//BufferWriter bw = new BufferWriter();
+		//FileWriter fw2 = new FileWriter(new File("C:\\Users\\dxy\\Output\\gridDistance-BaiduAPI"));
 		
+		for(int i=0;i<l;i++)
+			for(int j =0;j<w;j++){
+				if(i!=j){
+				fw1.write(i+"\t"+j+"\t"+rg.getShortestDistanceTime1(rg.getCenter(i), rg.getCenter(j))+"\t"
+			+rg.getShortestDistanceTime2(rg.getCenter(i), rg.getCenter(j))+"\n");
+				fw1.flush();
+				//System.out.println(i+"\t"+j+"\t"+rg.getShortestDistanceTime2(rg.getCenter(i), rg.getCenter(j)));
+				}else{
+					fw1.flush();
+					fw1.write(i+"\t"+j+"\t"+0+"\t"+0+"\n");
+					//System.out.println(i+"\t"+j+"\t"+0);
+				}
+			}
 		
+		fw1.close();
 		//landmark
 		//saveLandmarks();
 		
 		
 	}
-
-
-
 
 }
