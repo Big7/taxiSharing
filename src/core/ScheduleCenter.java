@@ -3,30 +3,61 @@ package core;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 
 public class ScheduleCenter {
 	
 	public static final ScheduleCenter Center = new ScheduleCenter();
-	String queryFile="C:\\Users\\Dolly\\git\\taxiSharing\\query.txt";
+	String queryFile="query.txt";
 	///Users/DXY/programming/Myeclipse_workspace/taxiSharing/query.txt
-	String taxiFile="C:\\Users\\Dolly\\git\\taxiSharing\\taxi.txt";
+	String taxiFile="taxi.txt";
 	///Users/DXY/programming/Myeclipse_workspace/taxiSharing/taxi.txt
-	
+	RoadGrid rg;
 	List<Rider> Requests = new ArrayList<Rider>();
 	List<Taxi> RunTaxi = new ArrayList<Taxi>();//����taxi
 	List<Taxi> AvailableTaxi= new ArrayList<Taxi>();//�пյ�taxi
 	
 	//��ʼ��Requests��RunTaxi
 	public ScheduleCenter(){
+		
+		try {
+			rg = new RoadGrid();
+			rg.buildStaticIndex();//build only once, spatial & temporal index
+			//rg.buildDynamicIndex(RunTaxi);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		readFile(1);//rider query file
 		readFile(2);//taxi location file
+		
 	}
 	
+	
+
+	private void realTimeUpdate() {
+		// TODO Auto-generated method stub
+		Timer timer = new Timer();
+		
+		timer.scheduleAtFixedRate(new TimerTask(){
+		   public void run()
+		   {
+		       
+		   }
+		},1000,10000);//1秒后启动任务,以后每隔10秒执行一次线程 
+	}
+
+
+
 	private void readFile(int category) {
 		// TODO Auto-generated method stub
 		if(category ==1){
@@ -150,7 +181,7 @@ public class ScheduleCenter {
 	}
 
 	public static void main(String[] args) {
-		ScheduleCenter sc = new ScheduleCenter();
+		ScheduleCenter sc = ScheduleCenter.Center;
 //		for(Rider rider:sc.getRequests()){
 //			rider.toString();
 //		}

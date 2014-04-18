@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Sun Apr 13 18:18:42 CST 2014
+onejar.license.required=true
+manifest.classpath=.
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=taxiSharing_fat.jar
+manifest.mergeall=true
+manifest.mainclass=core.MyThread
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=

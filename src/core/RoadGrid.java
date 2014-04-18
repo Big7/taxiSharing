@@ -1,8 +1,10 @@
 package core;
 
 
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,18 +14,29 @@ import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.collections.map.LinkedMap;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.geotools.graph.path.Path;
 import org.geotools.graph.structure.Edge;
 import org.geotools.graph.structure.Node;
 
+import roadmatch.SnapSegment;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class RoadGrid {
-	RoadNetwork RoadNetwork;
+	//RoadNetwork RoadNetwork;
 	Coordinate LeftUp = new Coordinate();
 	Coordinate LeftDown = new Coordinate();//x,y	lng,lat
 	Coordinate RightDown = new Coordinate();
@@ -33,9 +46,13 @@ public class RoadGrid {
 	int yGrids,xGrids;
 	double AvgSpeed;
 	//ItemVisitor Grids = new ArrayListVisitor();
+	Grid[][] grids;
+	SnapSegment RoadNetwork;
+	List<LinkedHashMap<Integer, Double>> SpatialIndex,TemporalIndex;
+	
 	
 	RoadGrid() throws Exception{
-		RoadNetwork=new RoadNetwork("C:\\Users\\dxy\\road_network\\road_network.shp");
+		RoadNetwork=new SnapSegment("road_network/road_network.shp");//"C:\\Users\\dxy\\road_network\\road_network.shp");
 		
 		LeftUp = new Coordinate(116.215,40.030);//(40.220, 116.095);
 		LeftDown = new Coordinate(116.215,39.780);//(39.715, 116.095);
@@ -44,28 +61,145 @@ public class RoadGrid {
 		//2-dimensional Euclidean distance，向上取整25000*33000 m*m
 		setWidth((int) Math.ceil(100000*LeftUp.distance(LeftDown)));
 		setLength((int) Math.ceil(100000*LeftDown.distance(RightDown)));
-		//每个格子的长宽 m
-		setGridWidth(500);
-		setGridLength(500);
-		//长和宽的格子个数
+		//每个格子的长宽 m 
+		setGridWidth(1000);
+		setGridLength(1000);
+		//长和宽的格子个数 25*33
 		setyGrids((int) (getWidth()/getGridWidth()));
 		setxGrids((int)(getLength()/getGridLength()));
-		setAvgSpeed(600);//M/s
+		setAvgSpeed(50);//M/s
+		
+		//统计时间
+		long begintime = System.nanoTime();
+
+		 //运算代码
+		initGridMatrix("Output/gridDistance");
+		long endtime = System.nanoTime();
+		long costTime = (endtime - begintime)/1000000;
+		System.out.println("initGridMatrix:"+costTime+" ms");
+		buildStaticIndex();
+		
+		long endtime2 = System.nanoTime();
+		costTime = (endtime2 - endtime)/1000000;
+		System.out.println("build spatial index:"+costTime+" ms");
 	}
 	
+	public void initGridMatrix(String file) throws Exception{
+		grids = new Grid[xGrids*yGrids][xGrids*yGrids];
+		FileReader fr = new FileReader(new File(file));
+		BufferedReader br = new BufferedReader(fr);
+		String line;
+		while ((line = br.readLine()) != null) {
+			String[] str = line.split("\t");
+			//System.out.println(str[0]+str[1]);
+			int i = Integer.parseInt(str[0]);
+			int j = Integer.parseInt(str[1]);
+			if(!str[2].equals("null")){
+				double d = Double.parseDouble(str[2]);
+				double t = Double.parseDouble(str[3]);
+				grids[i][j] = new Grid(t,d); 
+			}else{
+				grids[i][j] = new Grid(0,0);
+			}
+			
+		}
+		/*//
+		FileWriter fw = new FileWriter("C:\\Output\\GridMatrix");
+		for(int i=0;i<grids.length;i++){
+			fw.write(i+"\t");
+			
+			for(int j =0;j<grids[i].length;j++){
+				fw.write(j+"\t");
+				System.out.println(i+","+j);
+			}
+			fw.write("\n");
+			fw.flush();
+		}
+		*/
+	}
 	
+	public void buildStaticIndex(){
+		
+		SpatialIndex = new ArrayList<LinkedHashMap<Integer, Double>>();
+		for(int i=0;i<grids.length;i++){
+			Grid[] l=grids[i].clone();
+//			System.out.println(grids[i][50]);
+//			System.out.println(l[50]);
+			
+			List<Grid> list = new LinkedList<Grid>();
+			SpatialIndex.add(i, new LinkedHashMap<Integer,Double>());
+			
+			//对list按距离排序
+			for(int m=0;m<l.length;m++){
+				l[m].setIndex(m);
+				list.add(l[m]);
+				System.out.println(l[m]);
+			}
+			Collections.sort(list,new Comparator<Grid>(){
 
-	public RoadNetwork getRoadNetwork() {
-		return RoadNetwork;
+				@Override
+				public int compare(Grid o1, Grid o2) {
+					// TODO Auto-generated method stub
+					double a = o1.getDistance()-o2.getDistance();
+					if(a>0)return 1;
+					else if(a<0)return -1;
+					else return 0;
+					
+				}
+				
+			});
+			System.out.println(list);
+			
+			//list前20个加入index
+			for(int j=0;j<20;j++){
+				Grid g = list.get(j);
+				SpatialIndex.get(i).put(g.getIndex(), g.getDistance());
+			}
+			System.out.println(SpatialIndex.get(i).toString());
+		}
+        
+		TemporalIndex = new ArrayList<LinkedHashMap<Integer, Double>>();
+		for(int i=0;i<grids.length;i++){
+			Grid[] l=grids[i].clone();
+			
+			List<Grid> list = new LinkedList<Grid>();
+			TemporalIndex.add(i, new LinkedHashMap<Integer,Double>());
+			
+			//对list按距离排序
+			for(int m=0;m<l.length;m++){
+				l[m].setIndex(m);
+				list.add(l[m]);
+				System.out.println(l[m]);
+			}
+			Collections.sort(list,new Comparator<Grid>(){
+
+				@Override
+				public int compare(Grid o1, Grid o2) {
+					// TODO Auto-generated method stub
+					double a = o1.getTime()-o2.getTime();
+					if(a>0)return 1;
+					else if(a<0)return -1;
+					else return 0;
+					
+				}
+				
+			});
+			System.out.println(list);
+			
+			//list前20个加入index
+			for(int j=0;j<20;j++){
+				Grid g = list.get(j);
+				TemporalIndex.get(i).put(g.getIndex(), g.getDistance());
+			}
+			System.out.println(TemporalIndex.get(i).toString());
+		}
+        
 	}
-
-
-
-	public void setRoadNetwork(RoadNetwork roadNetwork) {
-		RoadNetwork = roadNetwork;
+	
+	public void buildDynamicIndex(Taxi t) {
+		// TODO Auto-generated method stub
+		
 	}
-
-
 
 	public int getyGrids() {
 		return yGrids;
@@ -205,7 +339,7 @@ public class RoadGrid {
 		
 	//geotools解析路网计算任意两点时间
 	public double getTime2(Coordinate start, Coordinate end){
-		Path route =this.getRoadNetwork().getShortestPath(start, end);;
+		Path route =RoadNetwork.getShortestPath(start, end);;
 		//System.out.println(route.toString());
 		List<Edge> edges = route.getEdges();
 		double shortestDis=0;
@@ -222,8 +356,13 @@ public class RoadGrid {
 	
 	//geotools计算起点终点在格子中心最短路径和时间
 		public String getShortestDistanceTime2(Coordinate start, Coordinate end){
-			Path route =this.getRoadNetwork().getShortestPath(start, end);;
-			//System.out.println(route.toString());
+			Path route;
+			try{
+			route =RoadNetwork.getNewShortestPath(this.RoadNetwork.getCloseNodeOnFeature(start, this.RoadNetwork.getNearestSegment(start)),
+					this.RoadNetwork.getCloseNodeOnFeature(end, this.RoadNetwork.getNearestSegment(end)));
+			} catch (NullPointerException e) {
+				route =null;
+			}
 			if(route!=null){
 				List<Edge> edges = route.getEdges();
 				double shortestDis=0;
@@ -277,6 +416,7 @@ public class RoadGrid {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		RoadGrid rg = new RoadGrid();
+		
 		System.out.println(rg.getWidth()+"  "+rg.getLength()+"   "+rg.getxGrids()+" "+rg.getyGrids());
 		int l = rg.getxGrids();
 		int w = rg.getyGrids();
@@ -291,11 +431,11 @@ public class RoadGrid {
 //		
 //		System.out.println("timeAPI:"+timeAPI+"   timeRN:"+timeRN);
 		
-		FileWriter fw1 = new FileWriter(new File("C:\\Users\\dxy\\Output\\gridDistance"));
+		/*FileWriter fw1 = new FileWriter(new File("C:\\Output\\gridDistance-65"));
 		//BufferWriter bw = new BufferWriter();
 		//FileWriter fw2 = new FileWriter(new File("C:\\Users\\dxy\\Output\\gridDistance-BaiduAPI"));
 		
-		for(int i=0;i<l;i++)
+		for(int i=65;i<l;i++)
 			for(int j =0;j<w;j++){
 				if(i!=j){
 				fw1.write(i+"\t"+j+"\t"+rg.getShortestDistanceTime1(rg.getCenter(i), rg.getCenter(j))+"\t"
@@ -309,11 +449,13 @@ public class RoadGrid {
 				}
 			}
 		
-		fw1.close();
+		fw1.close();*/
 		//landmark
 		//saveLandmarks();
 		
 		
 	}
+
+	
 
 }
