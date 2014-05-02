@@ -3,8 +3,11 @@ package core;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -22,6 +25,8 @@ public class ScheduleCenter {
 	///Users/DXY/programming/Myeclipse_workspace/taxiSharing/taxi.txt
 	RoadGrid rg;
 	List<Rider> Requests = new ArrayList<Rider>();
+	List<Rider> Scheduling = new ArrayList<Rider>();
+	
 	List<Taxi> RunTaxi = new ArrayList<Taxi>();//����taxi
 	List<Taxi> AvailableTaxi= new ArrayList<Taxi>();//�пյ�taxi
 	
@@ -43,20 +48,6 @@ public class ScheduleCenter {
 	}
 	
 	
-
-	private void realTimeUpdate() {
-		// TODO Auto-generated method stub
-		Timer timer = new Timer();
-		
-		timer.scheduleAtFixedRate(new TimerTask(){
-		   public void run()
-		   {
-		       
-		   }
-		},1000,10000);//1秒后启动任务,以后每隔10秒执行一次线程 
-	}
-
-
 
 	private void readFile(int category) {
 		// TODO Auto-generated method stub
@@ -106,17 +97,22 @@ public class ScheduleCenter {
 				String content = null;
 				
 				String[] texts=new String[9];
-				int i=0;
+//				int i=0;
+				
 				while ((content = reader.readLine()) != null) {
+					
+					texts = content.split(",");
+					/*
 					StringTokenizer token = new StringTokenizer(content, ",");
-	
 					while (token.hasMoreElements()) {
 						texts[i]=token.nextToken();
 						//System.out.println(i+"  "+texts[i]);
 						i++;
-					}
-					RunTaxi.add(new Taxi(texts));
-					i=0;
+					}*/
+					Taxi t = new Taxi(texts);
+					RunTaxi.add(t);
+					rg.insertTaxiIndex(t);
+//					i=0;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -133,11 +129,44 @@ public class ScheduleCenter {
 
 	}
 
+	private void realTimeUpdate() {
+		// TODO Auto-generated method stub
+		Timer timer = new Timer();
+		
+		timer.scheduleAtFixedRate(new TimerTask(){
+		   public void run()
+		   {
+			   //取第一个request的时间，检查10s内的requests
+			   //每次执行完要删除（加入scheduled List）
+			   Date current = Requests.get(0).getMomentTime();
+			   Calendar calendar = Calendar.getInstance(); 
+			   calendar.setTime(current); 
+			   calendar.add(Calendar.SECOND, 10); 
+			   while(!Requests.isEmpty()){
+				   if(Requests.get(0).getMomentTime().before(calendar.getTime())){
+					   Scheduling.add(Requests.get(0));
+					   Requests.remove(0);
+					   
+				   }else{
+					   break;
+				   }
+			   }
+//			   System.out.println(cur +" "  +calendar.getTime());
+		   }
+		},1000,10000);//1秒后启动任务,以后每隔10秒执行一次线程 
+	}
+	
+	
+	public List<Taxi> taxiSearch(Rider query){
+		return null;
+		
+	}
+	
 	public void schedule(){
-		for(Rider rider:Requests){
-			System.out.println("Rider: "+rider.toString());
-			//Ѱ�����ĳ��⳵
-			List<Taxi> Candidates=findNearestTaxis(rider);
+		for(Rider query:Scheduling){
+			System.out.println("Query: "+query.toString());
+			//对每个请求执行search操作
+			List<Taxi> Candidates=taxiSearch(query);
 			System.out.println("Candidate taxis:");
 			for(Taxi t:Candidates){
 				System.out.println(t.toString());
@@ -180,19 +209,25 @@ public class ScheduleCenter {
 		RunTaxi = runTaxi;
 	}
 
-	public static void main(String[] args) {
-		ScheduleCenter sc = ScheduleCenter.Center;
+	public static void main(String[] args) throws ParseException {
+//		ScheduleCenter sc = ScheduleCenter.Center;
 //		for(Rider rider:sc.getRequests()){
 //			rider.toString();
 //		}
-		List<Taxi> rt=sc.getRunTaxi();
+		/*List<Taxi> rt=sc.getRunTaxi();
 		for(int i=0;i<rt.size();i++){
 			System.out.println(rt.get(i));
 		}
 		for(Taxi taxis:rt){
 			System.out.println("������");
 			System.out.println(taxis.toString());
-		}
+		}*/
+		DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date cur = df.parse("20121130001959");
+		 Calendar calendar = Calendar.getInstance(); 
+		   calendar.setTime(cur); 
+		   calendar.add(Calendar.SECOND, 1); 
+		   System.out.println(cur +" "  +calendar.getTime());
 		//sc.schedule();
 	}
 }

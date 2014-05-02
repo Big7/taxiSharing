@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 
 public class Taxi {
 	String TaxiID;
@@ -32,7 +34,9 @@ public class Taxi {
 		TaxiID = taxiID;
 	}
 
-
+public Coordinate getLocation(){
+	return new Coordinate(longitude,latitude);
+}
 
 
 
@@ -164,8 +168,8 @@ public class Taxi {
 
 	
     /**
-	 * ´Ó×Ö·ûÊý×éÉú³Étaxi gps point
-	 * @param texts Ò»ÐÐ×Ö·û´®
+	 * ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½taxi gps point
+	 * @param texts Ò»ï¿½ï¿½ï¿½Ö·ï¿½
      * @throws ParseException 
 	 */
 	public Taxi(String[] texts) throws ParseException{

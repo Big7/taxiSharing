@@ -18,11 +18,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.map.LinkedMap;
 import org.codehaus.jettison.json.JSONException;
@@ -48,7 +50,8 @@ public class RoadGrid {
 	//ItemVisitor Grids = new ArrayListVisitor();
 	Grid[][] grids;
 	SnapSegment RoadNetwork;
-	List<LinkedHashMap<Integer, Double>> SpatialIndex,TemporalIndex;
+	List<TreeMap<Double, Integer>> SpatialIndex,TemporalIndex;
+	List<TreeMap<String,String>> TaxiIndex;
 	
 	
 	RoadGrid() throws Exception{
@@ -82,8 +85,13 @@ public class RoadGrid {
 		long endtime2 = System.nanoTime();
 		costTime = (endtime2 - endtime)/1000000;
 		System.out.println("build spatial index:"+costTime+" ms");
+		
+		SpatialIndex = new ArrayList<TreeMap<Double, Integer>>();
+		TemporalIndex = new ArrayList<TreeMap<Double, Integer>>();
+		TaxiIndex = new ArrayList<TreeMap<String, String>>();
 	}
 	
+
 	public void initGridMatrix(String file) throws Exception{
 		grids = new Grid[xGrids*yGrids][xGrids*yGrids];
 		FileReader fr = new FileReader(new File(file));
@@ -117,8 +125,49 @@ public class RoadGrid {
 		}
 		*/
 	}
+
+	public void buildStaticIndex() {
+		for(int i=0;i<grids.length;i++){
+			TreeMap<Double,Integer>spatialList = new TreeMap<Double,Integer>();
+			TreeMap<Double,Integer>temprList = new TreeMap<Double,Integer>();
+			//index中包含所有格子，冗余！应当只加入邻近的格子
+			for(int j =0; j<grids[i].length; j++){
+				spatialList.put(grids[i][j].getDistance(), j);
+				temprList.put(grids[i][j].getTime(), j);
+			}
+			SpatialIndex.add(i, spatialList);
+			TemporalIndex.add(i,temprList);
+		}
+
+	}
 	
-	public void buildStaticIndex(){
+	public void insertTaxiIndex(Taxi t){
+		int g = this.getGrid(t.getLocation());
+		if(TaxiIndex.get(g)!=null){
+			TaxiIndex.get(g).put(t.getMomentTime().toString(), t.getTaxiID());
+		}else{
+			TreeMap<String,String>taxiList = new TreeMap<String,String>();
+			taxiList.put(t.getMomentTime().toString(), t.getTaxiID());
+			
+			TaxiIndex.add(g,taxiList);
+		}
+		
+	}
+	
+	public void deletefromTaxiIndex(int g,String id){
+		TreeMap<String,String> taxiList = TaxiIndex.get(g);
+		Iterator it = taxiList.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String,String> entry = (Entry<String, String>) it.next();
+			if(entry.getValue().equals(id)){
+				TaxiIndex.get(g).remove(entry.getKey());
+				return;
+			}
+			
+		}
+	}
+	
+	/*public void buildStaticIndex(){
 		
 		SpatialIndex = new ArrayList<LinkedHashMap<Integer, Double>>();
 		for(int i=0;i<grids.length;i++){
@@ -126,6 +175,7 @@ public class RoadGrid {
 //			System.out.println(grids[i][50]);
 //			System.out.println(l[50]);
 			
+			//???????优化????????先把所有放入数组中排序好，取前20个加入索引
 			List<Grid> list = new LinkedList<Grid>();
 			SpatialIndex.add(i, new LinkedHashMap<Integer,Double>());
 			
@@ -136,7 +186,6 @@ public class RoadGrid {
 				System.out.println(l[m]);
 			}
 			Collections.sort(list,new Comparator<Grid>(){
-
 				@Override
 				public int compare(Grid o1, Grid o2) {
 					// TODO Auto-generated method stub
@@ -150,7 +199,7 @@ public class RoadGrid {
 			});
 			System.out.println(list);
 			
-			//list前20个加入index
+			//取list前20个加入index
 			for(int j=0;j<20;j++){
 				Grid g = list.get(j);
 				SpatialIndex.get(i).put(g.getIndex(), g.getDistance());
@@ -194,7 +243,7 @@ public class RoadGrid {
 			System.out.println(TemporalIndex.get(i).toString());
 		}
         
-	}
+	}*/
 	
 	public void buildDynamicIndex(Taxi t) {
 		// TODO Auto-generated method stub
@@ -332,7 +381,7 @@ public class RoadGrid {
 				JSONObject baiduJSON = readJsonFromUrl("http://api.map.baidu.com/direction/v1?mode=driving&origin="+start.y+","+start.x+"&destination="+end.y+","+end.x
 						+"&origin_region=北京&destination_region=北京&output=json&ak=FF5d28ddc84d30ea86d9207d9839d1ea"); 
 				System.out.println(baiduJSON.toString());
-				return "null";
+				return "null\tnull";
 			}
 			
 		}
@@ -377,7 +426,7 @@ public class RoadGrid {
 				
 				return doubleDigits(shortestDis)+"\t"+doubleDigits(shortestDis/this.getAvgSpeed()); 
 			}else{
-				return "null";
+				return "null\tnull";
 			}
 		}
 		
