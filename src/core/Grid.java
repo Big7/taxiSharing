@@ -1,10 +1,12 @@
 package core;
 
-public class Grid {
+import java.io.Serializable;
+
+public class Grid implements Serializable {
 
 	int index;//end grid
 	double distance;
-	double time;
+	public double time=0.0;
 	
 	public Grid(double t,double d){
 		this.setTime(t);

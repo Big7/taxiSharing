@@ -4,12 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class MyThread extends RoadGrid implements Runnable{
-	RoadGrid rg ;
+public class MyThread implements Runnable{
+	RoadGrid rg;
 	int low,high;
 	
 	MyThread(RoadGrid rg , int low,int high) throws Exception {
-		super();
 		this.rg = rg;
 		this.low = low;
 		this.high = high;
@@ -48,7 +47,7 @@ public class MyThread extends RoadGrid implements Runnable{
 	}
 	
 	public static void main(String[] args) throws Exception {
-		RoadGrid rg = new RoadGrid();
+		RoadGrid rg = RoadGrid.getRoadGrid();
 		MyThread myThread1 = new MyThread(rg,0,100);//Integer.parseInt(args[0]),Integer.parseInt(args[1]));  
 		MyThread myThread2 = new MyThread(rg,100,200);//  Integer.parseInt(args[1]),Integer.parseInt(args[2]));
 		MyThread myThread3 = new MyThread(rg,200,300); //Integer.parseInt(args[2]),Integer.parseInt(args[3])); 

@@ -14,8 +14,6 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
-
 public class ScheduleCenter {
 	
 	public static final ScheduleCenter Center = new ScheduleCenter();
@@ -34,8 +32,8 @@ public class ScheduleCenter {
 	public ScheduleCenter(){
 		
 		try {
-			rg = new RoadGrid();
-			rg.buildStaticIndex();//build only once, spatial & temporal index
+			rg = RoadGrid.getRoadGrid();
+			//rg.buildStaticIndex();//build only once, spatial & temporal index
 			//rg.buildDynamicIndex(RunTaxi);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -111,7 +109,7 @@ public class ScheduleCenter {
 					}*/
 					Taxi t = new Taxi(texts);
 					RunTaxi.add(t);
-					rg.insertTaxiIndex(t);
+					//rg.insertTaxiIndex(t);
 //					i=0;
 				}
 			} catch (Exception e) {
