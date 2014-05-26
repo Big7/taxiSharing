@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 public class Rider {
 	String RiderID;
 	int State;//����
@@ -13,11 +15,11 @@ public class Rider {
 	double OriginLng;//x
 	double OriginLat;//y纬度39
 	
-	String Origin;
+	Coordinate Origin;
 	
 	double DestinationLng;
 	double DestinationLat;
-	String Destination;
+	Coordinate Destination;
 	Taxi Driver;
 	
 	public Rider(String[] texts) throws ParseException {
@@ -28,7 +30,8 @@ public class Rider {
 		OriginLng =Double.parseDouble(texts[2]);
 		DestinationLat =Double.parseDouble(texts[3]);
 		DestinationLng =Double.parseDouble(texts[4]);
-		
+		this.setOrigin(new Coordinate(OriginLng,OriginLat));
+		this.setDestination(new Coordinate(DestinationLng,DestinationLat));
 		State=1;//Ĭ��Ϊ1
 		
 	}
@@ -81,19 +84,19 @@ public class Rider {
 
 
 
-	public String getOrigin() {
+	public Coordinate getOrigin() {
 		return Origin;
 	}
 
-	public void setOrigin(String origin) {
+	public void setOrigin(Coordinate origin) {
 		Origin = origin;
 	}
 
-	public String getDestination() {
+	public Coordinate getDestination() {
 		return Destination;
 	}
 
-	public void setDestination(String destination) {
+	public void setDestination(Coordinate destination) {
 		Destination = destination;
 	}
 

@@ -51,9 +51,10 @@ public class RoadGrid implements Serializable {
 	int yGrids, xGrids;
 	double AvgSpeed;
 	// ItemVisitor Grids = new ArrayListVisitor();
-	Grid[][] grids;
+	public Grid[][] grids;
 	transient SnapSegment RoadNetwork;
-	List<LinkedHashMap<Integer, Double>> SpatialIndex, TemporalIndex;
+	List<LinkedHashMap<Integer, Double>> SpatialIndex;
+	public List<LinkedHashMap<Integer, Double>> TemporalIndex;
 
 	private static RoadGrid rg = null;
 
@@ -95,11 +96,11 @@ public class RoadGrid implements Serializable {
 
 	// singleton get instance
 	public static RoadGrid getRoadGrid() throws Exception {
-		if (rg == null) {
+		if (rg == null) {                                                                                       
 			 FileInputStream fis = new FileInputStream("roadgrid");
 			 ObjectInputStream ois = new ObjectInputStream(fis); 
 			 RoadGrid rg = (RoadGrid) ois.readObject(); 
-			 rg.print(); 
+//			 rg.print(); 
 			 ois.close();
 			 return rg;
 		}
@@ -276,8 +277,8 @@ public class RoadGrid implements Serializable {
 				* this.getxGrids();
 		double y = (location.y - LeftDown.y) / LeftDown.distance(LeftUp)
 				* this.getyGrids();
-		System.out.print(x + " " + Math.floor(x) + "    ");
-		System.out.println(y + " " + Math.floor(y));
+//		System.out.print(x + " " + Math.floor(x) + "    ");
+//		System.out.println(y + " " + Math.floor(y));
 		return (int) (this.getyGrids() * Math.floor(x) + Math.floor(y));
 	}
 
@@ -461,7 +462,6 @@ public class RoadGrid implements Serializable {
 		 ObjectOutputStream oos = new ObjectOutputStream(fos);
 		 
 		 oos.writeObject(lt);
-		 
 		 oos.close();
 		 
 		 FileInputStream fis = new FileInputStream("roadgrid");
