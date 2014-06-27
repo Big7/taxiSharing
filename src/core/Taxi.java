@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import TShare.RiderEntry;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
 
@@ -20,15 +22,11 @@ public class Taxi {
 	int GPSpeed;
 	int GPSangle;
 	int GPState;
-	List<Rider> Passengers = new ArrayList<Rider>();
-	
+	public List<Rider> Passengers = new ArrayList<Rider>();//onboard
+	public List<RiderEntry> Schedule = new ArrayList<RiderEntry>();
 	public String getTaxiID() {
 		return TaxiID;
 	}
-
-
-
-
 
 	public void setTaxiID(String taxiID) {
 		TaxiID = taxiID;

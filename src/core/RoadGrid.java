@@ -59,8 +59,7 @@ public class RoadGrid implements Serializable {
 	private static RoadGrid rg = null;
 
 	private RoadGrid() throws Exception {
-		// RoadNetwork=new
-		// SnapSegment("road_network/road_network.shp");//"C:\\Users\\dxy\\road_network\\road_network.shp");
+		RoadNetwork=new SnapSegment("road_network/road_network.shp");//"C:\\Users\\dxy\\road_network\\road_network.shp");
 
 		LeftUp = new Coordinate(116.215, 40.030);// (40.220, 116.095);
 		LeftDown = new Coordinate(116.215, 39.780);// (39.715, 116.095);
@@ -87,7 +86,7 @@ public class RoadGrid implements Serializable {
 
 		// 统计时间
 		long begintime = System.nanoTime();
-		initGridMatrix("Output/grid.txt");
+		//initGridMatrix("Output/grid.txt");
 		long endtime = System.nanoTime();
 		long costTime = (endtime - begintime) / 1000000;
 		System.out.println("initGridMatrix:" + costTime + " ms");
@@ -375,8 +374,12 @@ public class RoadGrid implements Serializable {
 
 	// geotools解析路网计算任意两点时间
 	public double getTime2(Coordinate start, Coordinate end) {
-		Path route = RoadNetwork.getShortestPath(start, end);
-		;
+		Path route;// = RoadNetwork.getShortestPath(start, end);
+		route = RoadNetwork.getNewShortestPath(this.RoadNetwork
+				.getCloseNodeOnFeature(start,
+						this.RoadNetwork.getNearestSegment(start)),
+				this.RoadNetwork.getCloseNodeOnFeature(end,
+						this.RoadNetwork.getNearestSegment(end)));
 		// System.out.println(route.toString());
 		List<Edge> edges = route.getEdges();
 		double shortestDis = 0;
@@ -415,7 +418,7 @@ public class RoadGrid implements Serializable {
 			}
 			shortestDis = shortestDis * 100000;
 
-			return doubleDigits(shortestDis) + "\t"
+			return this.getAvgSpeed()+"(avgspeed) "+doubleDigits(shortestDis) + "\t"
 					+ doubleDigits(shortestDis / this.getAvgSpeed());
 		} else {
 			return "null\tnull";
@@ -455,20 +458,19 @@ public class RoadGrid implements Serializable {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		RoadGrid lt = new RoadGrid();
+		 RoadGrid lt = new RoadGrid();
 
-		
-		 FileOutputStream fos = new FileOutputStream("roadgrid");
-		 ObjectOutputStream oos = new ObjectOutputStream(fos);
-		 
-		 oos.writeObject(lt);
-		 oos.close();
-		 
-		 FileInputStream fis = new FileInputStream("roadgrid");
-		 ObjectInputStream ois = new ObjectInputStream(fis); RoadGrid rg =
-		 (RoadGrid) ois.readObject(); 
-		 rg.print(); 
-		 ois.close();
+//		 FileOutputStream fos = new FileOutputStream("roadgrid");
+//		 ObjectOutputStream oos = new ObjectOutputStream(fos);
+//		 
+//		 oos.writeObject(lt);
+//		 oos.close();
+//		 
+//		 FileInputStream fis = new FileInputStream("roadgrid");
+//		 ObjectInputStream ois = new ObjectInputStream(fis); 
+//		 RoadGrid rg =	 (RoadGrid) ois.readObject(); 
+//		 rg.print(); 
+//		 ois.close();
 		 
 		// String str = "abc";
 		// String target = "abd";
@@ -476,21 +478,22 @@ public class RoadGrid implements Serializable {
 		// target));
 
 		// TODO Auto-generated method stub
-		// RoadGrid rg = new RoadGrid();
+		// 
 		//
 		// System.out.println(rg.getWidth()+"  "+rg.getLength()+"   "+rg.getxGrids()+" "+rg.getyGrids());
 		// int l = rg.getxGrids();
 		// int w = rg.getyGrids();
-
-		// Coordinate start= new Coordinate(116.249664,39.965543);
-		// Coordinate end= new Coordinate(116.472824,39.809591);
-		//
-		// System.out.println(start.toString()+"  "+end.toString());
-		// double timeAPI,timeRN;
-		// timeAPI = rg.getTime1(start, end);
-		// timeRN = rg.getTime2(start, end);
-		//
-		// System.out.println("timeAPI:"+timeAPI+"   timeRN:"+timeRN);
+		 RoadGrid rg = new RoadGrid();
+		 
+		 Coordinate start= new Coordinate(116.249664,39.965543);
+		 Coordinate end= new Coordinate(116.472824,39.809591);
+		 
+		 //System.out.println(start.toString()+"  "+end.toString());
+		 String timeAPI,timeRN;
+		 timeRN = rg.getShortestDistanceTime2(rg.getCenter(3), rg.getCenter(5));
+		 timeAPI = rg.getShortestDistanceTime1(rg.getCenter(3), rg.getCenter(5));
+		 
+		 System.out.println("timeAPI:"+timeAPI+"   timeRN:"+timeRN);
 
 		/*
 		 * FileWriter fw1 = new FileWriter(new

@@ -4,6 +4,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import TShare.RiderEntry;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -11,6 +14,8 @@ public class Rider {
 	String RiderID;
 	int State;//����
 	Date MomentTime;
+	Date MaxPickup;
+	Date MaxDeliver;
 	
 	double OriginLng;//x
 	double OriginLat;//y纬度39
@@ -22,10 +27,29 @@ public class Rider {
 	Coordinate Destination;
 	Taxi Driver;
 	
+	public Date getMaxPickup() {
+		return MaxPickup;
+	}
+
+	public void setMaxPickup(long maxPickup) {
+		MaxPickup.setTime( maxPickup);
+	}
+
+	public Date getMaxDeliver() {
+		return MaxDeliver;
+	}
+
+	public void setMaxDeliver(long maxDeliver) {
+		MaxDeliver.setTime(maxDeliver);
+	}
+
 	public Rider(String[] texts) throws ParseException {
 		
 		DateFormat df = new SimpleDateFormat("HH:mm:ss");
 		MomentTime = df.parse(texts[0]);
+		MaxPickup.setTime(MomentTime.getTime()+5*60*1000000);
+		//MaxDeliver.setTime(MomentTime.getTime()+rg.grids[][])
+		
 		OriginLat =Double.parseDouble(texts[1]);//y
 		OriginLng =Double.parseDouble(texts[2]);
 		DestinationLat =Double.parseDouble(texts[3]);
@@ -145,6 +169,28 @@ public class Rider {
 		String[] texts2={"431156","4","2","20121130001937","1","1","10","184","1"};
 		Taxi taxi=new Taxi(texts2);
 		rider.range180(taxi);
+	}
+
+	public long arriveOrigin(RoadGrid rg, List<RiderEntry> subList) {
+		long time=0;
+		Coordinate pre = subList.get(0).location;
+		for(RiderEntry re:subList){
+			time+=rg.getTime2(pre, re.location);
+			pre = re.location;
+		}
+		time+=rg.getTime2(pre, this.Origin);
+		return time*1000000;//milliseconds
+	}
+
+	public long arriveDestination(RoadGrid rg, List<RiderEntry> subList) {
+		long time=0;
+		Coordinate pre = subList.get(0).location;
+		for(RiderEntry re:subList){
+			time+=rg.getTime2(pre, re.location);
+			pre = re.location;
+		}
+		time+=rg.getTime2(pre, this.Destination);
+		return time*1000000;//milliseconds
 	}
 	
 }
