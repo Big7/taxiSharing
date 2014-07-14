@@ -490,12 +490,12 @@ public class RoadGrid implements Serializable {
 		 
 		 //System.out.println(start.toString()+"  "+end.toString());
 		 String timeAPI,timeRN;
-		 timeRN = rg.getShortestDistanceTime2(rg.getCenter(3), rg.getCenter(5));
 		 timeAPI = rg.getShortestDistanceTime1(rg.getCenter(3), rg.getCenter(5));
+		 timeRN = rg.getShortestDistanceTime2(rg.getCenter(3), rg.getCenter(5));
 		 
 		 System.out.println("timeAPI:"+timeAPI+"   timeRN:"+timeRN);
 
-		/*
+		/*timeAPI:3473	942   timeRN:50.0(avgspeed) 3471.43	69.43
 		 * FileWriter fw1 = new FileWriter(new
 		 * File("C:\\Output\\gridDistance-65")); //BufferWriter bw = new
 		 * BufferWriter(); //FileWriter fw2 = new FileWriter(new
